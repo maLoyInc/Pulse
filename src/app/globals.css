@@ -1,26 +1,226 @@
 @import "tailwindcss";
 
+/* Theme strategy: class-based (`.dark` on <html>), driven by next-themes. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Design tokens — Pulse
+   Light and dark are two *selected* palettes, not inversions of each other.
+   Chart series colors were validated with the dataviz palette validator
+   (lightness band, chroma floor, CVD separation, contrast) against the real
+   surfaces below: #ffffff (light card) and #141b27 (dark card).
+
+   Every pair that carries text was contrast-audited in both themes; the
+   `-strong` inks exist for exactly that reason — a soft tint is a background,
+   never a text colour, so each one has a partner ink that clears WCAG AA on it.
+--------------------------------------------------------------------------- */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* Planes */
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --surface-3: #ffffff;
+
+  /* Hairlines */
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+
+  /* Ink */
+  --fg: #0f172a;
+  --fg-muted: #475569;
+  --fg-subtle: #5b6a7e;
+
+  /* Accent — professional blue, doubles as chart slot 1 */
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-fg: #ffffff;
+  --accent-soft: #eff6ff;
+  --accent-strong: #1d4ed8;
+  --accent-ring: #93c5fd;
+
+  /* Semantic: direction of change */
+  --pos: #15803d;
+  --pos-soft: #dcfce7;
+  --pos-strong: #166534;
+  --neg: #dc2626;
+  --neg-soft: #fee2e2;
+  --neg-strong: #991b1b;
+  --warn: #b45309;
+  --warn-soft: #fef3c7;
+  --warn-strong: #92400e;
+  --flat: #64748b;
+  --flat-soft: #f1f5f9;
+  --flat-strong: #334155;
+
+  /* Chart chrome */
+  --grid: #e9eef5;
+  --axis: #cbd5e1;
+
+  /* Chart series (validated set, light steps) */
+  --chart-1: #2563eb;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+  --chart-6: #4a3aa7;
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Planes — blue-graphite, deliberately not pure black */
+  --bg: #0a0f17;
+  --surface: #141b27;
+  --surface-2: #1b2331;
+  --surface-3: #202a3a;
+
+  /* Hairlines */
+  --line: #26303f;
+  --line-strong: #334155;
+
+  /* Ink — deliberately not pure white */
+  --fg: #e6ecf5;
+  --fg-muted: #9fb0c6;
+  --fg-subtle: #7c8ca3;
+
+  /* Accent */
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-fg: #0a0f17;
+  --accent-soft: #16233a;
+  --accent-strong: #60a5fa;
+  --accent-ring: #1d4ed8;
+
+  /* Semantic: direction of change */
+  --pos: #4ade80;
+  --pos-soft: #10291d;
+  --pos-strong: #4ade80;
+  --neg: #f87171;
+  --neg-soft: #2e1618;
+  --neg-strong: #f87171;
+  --warn: #fbbf24;
+  --warn-soft: #2b2110;
+  --warn-strong: #fbbf24;
+  --flat: #7c8ca3;
+  --flat-soft: #1b2331;
+  --flat-strong: #b6c3d3;
+
+  /* Chart chrome */
+  --grid: #1e2735;
+  --axis: #2f3a4b;
+
+  /* Chart series — same eight hues, re-stepped for the dark surface */
+  --chart-1: #3b82f6;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+  --chart-6: #9085e9;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-ring: var(--accent-ring);
+
+  --color-pos: var(--pos);
+  --color-pos-soft: var(--pos-soft);
+  --color-pos-strong: var(--pos-strong);
+  --color-neg: var(--neg);
+  --color-neg-soft: var(--neg-soft);
+  --color-neg-strong: var(--neg-strong);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-strong: var(--warn-strong);
+  --color-flat: var(--flat);
+  --color-flat-soft: var(--flat-soft);
+  --color-flat-strong: var(--flat-strong);
+
+  --color-grid: var(--grid);
+  --color-axis: var(--axis);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 0.75rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Visible, consistent keyboard focus everywhere. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Numbers that stack in columns must align; standalone display numbers
+     keep proportional figures (see dataviz marks-and-anatomy). */
+  th,
+  td,
+  .tnum {
+    font-variant-numeric: tabular-nums;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Recharts resets: the library ships focus rings and cursor fills we replace. */
+.recharts-wrapper:focus,
+.recharts-surface:focus {
+  outline: none;
+}
+
+.recharts-sector:focus,
+.recharts-rectangle:focus {
+  outline: none;
 }
