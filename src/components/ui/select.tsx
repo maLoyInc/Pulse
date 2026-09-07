@@ -37,7 +37,7 @@ export function Select({
       <div className="relative">
         <select
           id={selectId}
-          className="h-9 w-full appearance-none rounded-lg border border-line bg-surface pr-8 pl-3 text-sm text-fg transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-9 w-full appearance-none rounded-lg border border-line-strong bg-surface pr-8 pl-3 text-sm text-fg transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
           {...props}
         >
           {children}

@@ -24,9 +24,16 @@
   --surface-2: #f1f5f9;
   --surface-3: #ffffff;
 
-  /* Hairlines */
+  /*
+   * Hairlines. `--line` frames things that are identified by their content
+   * (cards, table rows, tooltips) and is free to stay quiet. `--line-strong`
+   * outlines interactive controls, whose border is the only thing marking them
+   * as controls, so it has to clear 3:1 against the surface it sits on —
+   * WCAG 2.1 SC 1.4.11. Slate 500 is the one step that clears it against both
+   * #ffffff and #141b27, which is why both palettes land on the same value.
+   */
   --line: #e2e8f0;
-  --line-strong: #cbd5e1;
+  --line-strong: #64748b;
 
   /* Ink */
   --fg: #0f172a;
@@ -77,9 +84,9 @@
   --surface-2: #1b2331;
   --surface-3: #202a3a;
 
-  /* Hairlines */
+  /* Hairlines — control outlines hold at 3:1 here too, hence the shared value */
   --line: #26303f;
-  --line-strong: #334155;
+  --line-strong: #64748b;
 
   /* Ink — deliberately not pure white */
   --fg: #e6ecf5;

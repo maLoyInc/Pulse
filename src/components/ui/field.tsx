@@ -4,8 +4,12 @@ import { Search, X } from "lucide-react";
 import { useId, type ComponentPropsWithoutRef } from "react";
 import { cn } from "@/lib/utils";
 
+/*
+ * `border-line-strong`, not `border-line`: the outline is the only thing that
+ * says "this is a field", so it owes 3:1 against the surface (SC 1.4.11).
+ */
 const FIELD_BASE =
-  "h-9 w-full rounded-lg border border-line bg-surface px-3 text-sm text-fg placeholder:text-fg-subtle transition-colors";
+  "h-9 w-full rounded-lg border border-line-strong bg-surface px-3 text-sm text-fg placeholder:text-fg-subtle transition-colors";
 
 /** Search box with an inline clear affordance. */
 export function SearchField({
