@@ -6,7 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "qa": "playwright test",
+    "qa:a11y": "playwright test qa/a11y.spec.ts qa/contrast.spec.ts --project=chromium",
+    "qa:keyboard": "playwright test qa/keyboard.spec.ts --project=chromium",
+    "qa:perf": "playwright test qa/interactions.spec.ts --project=chromium",
+    "qa:browsers": "playwright test qa/rendering.spec.ts",
+    "qa:screenshots": "playwright test qa/screenshots.spec.ts --project=chromium",
+    "qa:lighthouse": "node qa/lighthouse.mjs",
+    "qa:payload": "node qa/payload.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -19,10 +27,13 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.11.2",
+    "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "axe-core": "4.11.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
