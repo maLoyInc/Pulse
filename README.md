@@ -2,6 +2,8 @@
 
 > *See your business metrics in real time.*
 
+**Live demo — <https://pulse-dashboard-id.vercel.app>**
+
 A B2B analytics dashboard built as a self-directed portfolio piece for the
 **Full-Stack Development / Data Visualization** category on Upwork.
 
