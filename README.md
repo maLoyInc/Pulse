@@ -36,9 +36,22 @@ the data is generated in process.
 | `npm run build` | Production build, including the TypeScript check |
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint, via `eslint-config-next` |
+| `npm run qa` | The whole Playwright suite, all five browsers |
+| `npm run qa:a11y` | axe-core scans plus the colour-contrast audit |
+| `npm run qa:keyboard` | Keyboard reachability and operation |
+| `npm run qa:perf` | Interaction latency against a 200 ms budget |
+| `npm run qa:browsers` | Rendering in Chromium, Gecko and WebKit, plus shipping Chrome and Edge |
+| `npm run qa:screenshots` | Regenerates `docs/screenshots/` |
+| `npm run qa:lighthouse` | Lighthouse against the production build |
+| `npm run qa:payload` | Per-route JavaScript weight, fetched from the served HTML |
 
 Needs Node 20.9 or newer (a Next.js 16 requirement). All four routes prerender as static
 content, so the project deploys to Vercel with no configuration.
+
+The `qa:*` scripts start their own production server on port 3100 and stop it again, so
+nothing needs to be running first. The browsers themselves are not installed by
+`npm install` — `npx playwright install` fetches Chromium, Firefox and WebKit, and the
+`chrome` and `edge` projects use whatever is already installed on the machine.
 
 ---
 
@@ -69,7 +82,11 @@ what the revenue card's own delta already says.
 **Charts (Recharts).** An area/line trend with a metric switcher (revenue · users · orders),
 a horizontal bar chart for revenue by product category, and a donut for the traffic-source
 mix. All three read the global range and share one theme module, so a metric keeps the same
-colour on every page, and each has its own tooltip, skeleton and empty state.
+colour on every page, and each has its own tooltip, skeleton and empty state. Recharts is
+loaded in its own chunk rather than up front — it draws nothing server-side anyway, since
+`ResponsiveContainer` waits for a resize measurement — so the library arrives after first
+paint. The fixed-height box lives in the eagerly loaded half, so the skeleton and the plot
+occupy the same space and the swap shifts nothing.
 
 **Data table.** 168 transactions with debounced search, status and category dropdowns,
 sortable columns and paging at 10 / 25 / 50 rows. The four features compose in a fixed order
@@ -180,6 +197,55 @@ of history to have something to compare to.
 - **Designed loading and empty states.** Skeletons match the footprint of the content they
   stand in for, so a filter change never shifts the page; empty states explain the cause and,
   where it helps, offer the way out.
+
+## Quality checks
+
+A build and a type-check cannot answer whether the thing renders in Safari, whether a
+sortable header can be reached with a keyboard, or whether a colour pair clears WCAG AA.
+Those questions get their own harness, in `qa/`, run with Playwright against the
+production build on `next start` rather than the dev server — so what is measured is what
+would ship.
+
+The suite covers six things:
+
+- **Colour contrast.** Token pairs are read out of `globals.css` at run time and their
+  ratios computed, so the table cannot drift from the palette it claims to have checked.
+- **Automated accessibility.** axe-core across every route, both themes, three viewports.
+- **Cross-browser rendering.** Every route at desktop, tablet and mobile in Chromium,
+  Gecko and WebKit, plus shipping Chrome and Edge. Charts are measured for real geometry,
+  not just presence in the DOM, and the run fails on horizontal overflow or a console error.
+- **Keyboard operation.** Tab order, Enter and Space activation, visible focus rings, the
+  drawer's focus trap, and inline validation wired to the fields it describes.
+- **Interaction latency.** Sort, filter, search, paging, chart switching and the theme
+  toggle, each timed to the second animation frame after the event, against a 200 ms budget.
+- **Initial load.** Lighthouse, and a per-route payload measurement taken by fetching each
+  route and every script its HTML asks for.
+
+The last run: 181 checks, 0 failures. 0 axe violations across 11 scans, 0 contrast pairs
+below AA, all five engines clean, every keyboard check passing, and 9 interactions all
+inside the budget with a worst single sample of 80.5 ms. Lighthouse scored Accessibility,
+Best Practices and SEO at 100 and Performance at 55, with First Contentful Paint at 0.88 s
+and Cumulative Layout Shift at 0.000. That Performance score is honest rather than good:
+it was measured on a memory-starved laptop, and every figure Lighthouse derives from CPU
+time is an upper bound until it is re-measured somewhere idle.
+
+Evidence lives in two places, both committed:
+
+- **`docs/qa-report.md`** — assembled by `qa/global-teardown.ts` from what the run actually
+  recorded, not written by hand. A section that says *not measured* means that suite did
+  not run, not that it passed.
+- **`docs/screenshots/`** — every route in both palettes at 1280px, the two data-heavy
+  routes at 768px and 360px, and the navigation drawer open on a phone.
+
+Raw output — `qa/results/` — is gitignored. The report is the deliverable; the JSON it was
+built from is machine-local and would go stale the moment anyone re-ran the suite.
+
+Two documented exceptions: the chart axis lines and the five donut slice colours sit below
+3:1. Every chart card carries a Chart/Table toggle that shows the same numbers as text, so
+the data does not depend on colour — and there is a test that fails if that toggle ever
+disappears, so the exception cannot quietly become a claim nobody checks.
+
+---
 
 ## Deliberately not built
 
