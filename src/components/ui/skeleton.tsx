@@ -25,13 +25,22 @@ export function MetricCardSkeleton() {
   );
 }
 
-/** Chart placeholder — takes the plot height it replaces, so no layout jump. */
-export function ChartSkeleton({ height = 260 }: { height?: number }) {
+/**
+ * Chart placeholder — takes the plot height it replaces, so no layout jump.
+ *
+ * Omit `height` to fill a box the caller has already sized. That is what the
+ * lazy chart boundaries do: they own the fixed-height box themselves, so the
+ * placeholder and the chart that replaces it cannot disagree about it.
+ */
+export function ChartSkeleton({ height }: { height?: number } = {}) {
   const bars = [42, 68, 54, 80, 62, 90, 74, 58, 84, 66, 96, 72];
   return (
     <div
-      className="flex flex-col justify-end gap-3"
-      style={{ height }}
+      className={cn(
+        "flex flex-col justify-end gap-3",
+        height === undefined && "h-full",
+      )}
+      style={height === undefined ? undefined : { height }}
       aria-hidden
     >
       <div className="flex flex-1 items-end gap-2">

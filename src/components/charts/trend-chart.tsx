@@ -1,27 +1,28 @@
 "use client";
 
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { formatDateLong, formatDateShort, formatWeekday } from "@/lib/date";
+import dynamic from "next/dynamic";
+import { ChartSkeleton } from "@/components/ui/skeleton";
+import { formatDateLong } from "@/lib/date";
 import { METRIC_META } from "@/lib/metric-meta";
 import type { TrendPoint } from "@/lib/metrics";
 import type { MetricKey } from "@/lib/types";
-import { TooltipShell } from "./chart-tooltip";
-import {
-  ACTIVE_DOT,
-  AREA_FILL_OPACITY,
-  CHART_INK,
-  LINE_SPEC,
-  SERIES,
-  TICK_STYLE,
-} from "./chart-theme";
+
+/*
+ * Recharts is ~400 KB unpacked and draws nothing on the server: its
+ * ResponsiveContainer waits for a ResizeObserver measurement, so the
+ * server-rendered markup is an empty box either way. Loading it in its own
+ * chunk therefore costs no visible content and takes the library off the
+ * critical path.
+ *
+ * The fixed-height box lives here, in the eagerly loaded half, so the
+ * placeholder and the plot occupy exactly the same space — `loading` receives
+ * no props and could not be told the height even if it wanted it. That is what
+ * keeps Cumulative Layout Shift at zero across the swap.
+ */
+const TrendPlot = dynamic(() => import("./trend-plot").then((m) => m.TrendPlot), {
+  ssr: false,
+  loading: () => <ChartSkeleton />,
+});
 
 /**
  * A single metric over time. One series only — comparing revenue against user
@@ -38,81 +39,19 @@ export function TrendChart({
   metric: MetricKey;
   height?: number;
 }) {
-  const meta = METRIC_META[metric];
-
   if (points.length === 1) return <SingleDayReadout point={points[0]} metric={metric} />;
-
-  // Keep roughly six date labels regardless of range length.
-  const tickInterval = Math.max(0, Math.ceil(points.length / 6) - 1);
 
   return (
     <div style={{ height }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          data={points as TrendPoint[]}
-          margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
-        >
-          <CartesianGrid
-            vertical={false}
-            stroke={CHART_INK.grid}
-            strokeWidth={1}
-          />
-          <XAxis
-            dataKey="date"
-            tickFormatter={formatDateShort}
-            interval={tickInterval}
-            tick={TICK_STYLE}
-            tickLine={false}
-            axisLine={{ stroke: CHART_INK.axis, strokeWidth: 1 }}
-            tickMargin={8}
-            minTickGap={8}
-          />
-          <YAxis
-            tickFormatter={meta.compact}
-            tick={TICK_STYLE}
-            tickLine={false}
-            axisLine={false}
-            width={72}
-          />
-          <Tooltip
-            cursor={{ stroke: CHART_INK.axis, strokeWidth: 1 }}
-            content={(props) => {
-              const point = props.payload?.[0]?.payload as
-                | TrendPoint
-                | undefined;
-              if (!props.active || !point) return null;
-              return (
-                <TooltipShell
-                  title={`${formatWeekday(point.date)}, ${formatDateLong(point.date)}`}
-                  rows={[
-                    {
-                      key: metric,
-                      label: meta.label,
-                      value: meta.full(point.value),
-                      color: SERIES[0],
-                    },
-                  ]}
-                />
-              );
-            }}
-          />
-          <Area
-            type="monotone"
-            dataKey="value"
-            stroke={SERIES[0]}
-            fill={SERIES[0]}
-            fillOpacity={AREA_FILL_OPACITY}
-            activeDot={ACTIVE_DOT}
-            dot={false}
-            {...LINE_SPEC}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+      <TrendPlot points={points} metric={metric} />
     </div>
   );
 }
 
-/** A one-day range has no trend to draw, so the number becomes the chart. */
+/**
+ * A one-day range has no trend to draw, so the number becomes the chart. Plain
+ * markup, so it stays in the eager module: this branch never pays for Recharts.
+ */
 function SingleDayReadout({
   point,
   metric,
