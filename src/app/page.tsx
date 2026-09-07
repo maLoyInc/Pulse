@@ -6,7 +6,7 @@ import { TrendCard } from "@/components/dashboard/trend-card";
 import { PageHeader } from "@/components/layout/page-header";
 
 export const metadata: Metadata = {
-  title: "Overview",
+  title: { absolute: "Pulse" },
   description:
     "Headline revenue, users and growth for the selected date range, with an automatic insight on the latest move.",
 };
